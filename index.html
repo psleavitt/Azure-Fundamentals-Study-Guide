@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<title>AZ-900 Study Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --blue-mid: #bfdbfe;
+    --blue-dark: #1e40af;
+    --green-light: #f0fdf4;
+    --green-text: #166534;
+    --amber-light: #fffbeb;
+    --amber-text: #92400e;
+    --slate: #0f172a;
+    --slate-mid: #334155;
+    --slate-light: #64748b;
+    --border: #e2e8f0;
+    --surface: #f8fafc;
+    --white: #ffffff;
+    --radius: 12px;
+    --tab-h: 56px;
+    --header-h: 72px;
+  }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--surface);
+    color: var(--slate);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    height: 100dvh;
+  }
+
+  /* ── Header ── */
+  .app-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-badge {
+    background: var(--blue);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 4px 9px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .header-text h1 { font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .header-text p { font-size: 12px; color: var(--slate-light); margin-top: 1px; }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 0 18px;
+    height: var(--tab-h);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--slate-light);
+    border: none;
+    background: transparent;
+    border-bottom: 2.5px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ── Main scrollable area ── */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+    padding-bottom: 32px;
+  }
+
+  /* ── Domain filter pills ── */
+  .domain-filter {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+  }
+  .domain-filter::-webkit-scrollbar { display: none; }
+  .dpill {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--slate-mid);
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .dpill.active { background: var(--blue-light); color: var(--blue-dark); border-color: var(--blue-mid); }
+  .dpill .pct { font-size: 10px; background: rgba(37,99,235,0.12); color: var(--blue-dark); padding: 1px 6px; border-radius: 10px; }
+  .dpill.active .pct { background: rgba(37,99,235,0.18); }
+
+  /* ── Topic cards ── */
+  .topic-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+  .topic-card:active { box-shadow: 0 0 0 2px var(--blue-mid); }
+  .topic-header { display: flex; align-items: center; justify-content: space-between; }
+  .topic-title { font-size: 14px; font-weight: 600; color: var(--slate); }
+  .topic-domain { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; margin-left: 8px; }
+  .d1 { background: var(--blue-light); color: var(--blue-dark); }
+  .d2 { background: var(--green-light); color: var(--green-text); }
+  .d3 { background: var(--amber-light); color: var(--amber-text); }
+  .topic-desc { font-size: 12px; color: var(--slate-light); margin-top: 4px; margin-bottom: 0; line-height: 1.5; }
+  .topic-items { margin-top: 10px; display: none; }
+  .topic-card.open .topic-items { display: block; }
+  .topic-items li {
+    font-size: 13px;
+    color: var(--slate-mid);
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--surface);
+    list-style: none;
+  }
+  .topic-items li::before { content: "›"; position: absolute; left: 0; color: var(--blue); font-weight: 700; }
+  .topic-items li:last-child { border-bottom: none; }
+  .chevron { color: var(--slate-light); font-size: 16px; transition: transform 0.2s; flex-shrink: 0; }
+  .topic-card.open .chevron { transform: rotate(90deg); }
+
+  /* ── Key concepts ── */
+  .concept-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .concept-term { font-size: 13px; font-weight: 600; color: var(--blue-dark); margin-bottom: 4px; }
+  .concept-def { font-size: 13px; color: var(--slate-mid); line-height: 1.55; }
+
+  /* ── Flashcards ── */
+  .fc-counter { text-align: center; font-size: 12px; color: var(--slate-light); margin-bottom: 12px; }
+  .flashcard {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 20px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .flashcard.revealed { background: var(--blue-light); border-color: var(--blue-mid); }
+  .fc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate-light); margin-bottom: 14px; }
+  .flashcard.revealed .fc-label { color: var(--blue-dark); }
+  .fc-text { font-size: 15px; font-weight: 500; line-height: 1.55; color: var(--slate); }
+  .flashcard.revealed .fc-text { color: var(--blue-dark); }
+  .fc-hint { font-size: 11px; color: var(--slate-light); margin-top: 14px; }
+  .fc-nav { display: flex; gap: 8px; }
+  .fc-nav button { flex: 1; padding: 12px; font-size: 14px; font-weight: 500; border-radius: var(--radius); border: 1px solid var(--border); background: var(--white); color: var(--slate); cursor: pointer; }
+  .fc-nav button.primary { background: var(--blue); color: white; border-color: var(--blue); }
+
+  /* ── Quiz ── */
+  .quiz-progress { margin-bottom: 16px; }
+  .quiz-progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .quiz-pct { font-size: 12px; color: var(--slate-light); min-width: 36px; text-align: right; }
+  .pbar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .pbar-fill { height: 100%; background: var(--blue); border-radius: 3px; transition: width 0.3s; }
+  .quiz-q { font-size: 15px; font-weight: 500; line-height: 1.6; margin-bottom: 16px; }
+  .options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .opt {
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--white);
+    transition: all 0.15s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .opt:active:not(.disabled) { background: var(--blue-light); }
+  .opt.selected { background: var(--blue-light); border-color: var(--blue-mid); color: var(--blue-dark); }
+  .opt.correct { background: var(--green-light); border-color: #86efac; color: var(--green-text); }
+  .opt.wrong { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+  .opt.disabled { cursor: default; }
+  .opt-letter { font-size: 11px; font-weight: 700; color: var(--slate-light); min-width: 16px; margin-top: 1px; }
+  .opt.selected .opt-letter { color: var(--blue-dark); }
+  .opt.correct .opt-letter { color: var(--green-text); }
+  .opt.wrong .opt-letter { color: #991b1b; }
+  .explanation { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--slate-mid); line-height: 1.6; margin-bottom: 12px; }
+  .quiz-btn { width: 100%; padding: 13px; font-size: 14px; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; }
+  .quiz-btn.check { background: var(--blue); color: white; }
+  .quiz-btn.next { background: var(--blue); color: white; }
+  .quiz-btn:disabled { background: var(--border); color: var(--slate-light); cursor: default; }
+  .score-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px 20px; text-align: center; }
+  .score-num { font-size: 56px; font-weight: 700; color: var(--blue); line-height: 1; }
+  .score-sub { font-size: 14px; color: var(--slate-light); margin-top: 6px; margin-bottom: 12px; }
+  .score-msg { font-size: 14px; color: var(--slate-mid); line-height: 1.5; margin-bottom: 20px; }
+  .retry-btn { background: var(--blue); color: white; border: none; border-radius: var(--radius); padding: 13px 28px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; }
+
+  /* ── Checklist ── */
+  .cl-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate-light);
+    padding: 4px 2px;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cl-section-label:first-child { margin-top: 0; }
+  .cl-count { font-size: 11px; color: var(--slate-light); }
+  .cl-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .cl-item:active { background: var(--surface); }
+  .cl-box {
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0px;
+    transition: all 0.15s;
+  }
+  .cl-item.done .cl-box { background: var(--blue); border-color: var(--blue); }
+  .cl-text { font-size: 13px; color: var(--slate); line-height: 1.5; }
+  .cl-item.done .cl-text { color: var(--slate-light); text-decoration: line-through; }
+  .checkmark { display: none; }
+  .cl-item.done .checkmark { display: block; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-badge">AZ-900</div>
+  <div class="header-text">
+    <h1>Azure Fundamentals</h1>
+    <p>Study guide · 5 tools included</p>
+  </div>
+</header>
+
+<nav class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="showTab('topics',this)">Topics</button>
+  <button class="tab-btn" onclick="showTab('concepts',this)">Key concepts</button>
+  <button class="tab-btn" onclick="showTab('flashcards',this)">Flashcards</button>
+  <button class="tab-btn" onclick="showTab('quiz',this)">Practice quiz</button>
+  <button class="tab-btn" onclick="showTab('checklist',this)">Prep checklist</button>
+</nav>
+
+<main class="main" id="mainScroll">
+
+  <!-- TOPICS -->
+  <section id="tab-topics">
+    <div class="domain-filter" id="domainFilter">
+      <button class="dpill active" onclick="filterDomain(0,this)">All topics</button>
+      <button class="dpill" onclick="filterDomain(1,this)">Cloud concepts <span class="pct">25–30%</span></button>
+      <button class="dpill" onclick="filterDomain(2,this)">Azure architecture <span class="pct">35–40%</span></button>
+      <button class="dpill" onclick="filterDomain(3,this)">Mgmt &amp; governance <span class="pct">30–35%</span></button>
+    </div>
+    <div id="topicsList"></div>
+  </section>
+
+  <!-- KEY CONCEPTS -->
+  <section id="tab-concepts" style="display:none">
+    <div id="conceptsList"></div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="tab-flashcards" style="display:none">
+    <div class="fc-counter" id="fcCounter"></div>
+    <div class="flashcard" id="flashcard" onclick="revealCard()">
+      <div class="fc-label" id="fcLabel">Question</div>
+      <div class="fc-text" id="fcText"></div>
+      <div class="fc-hint" id="fcHint">Tap to reveal answer</div>
+    </div>
+    <div class="fc-nav">
+      <button onclick="prevCard()">← Prev</button>
+      <button class="primary" onclick="nextCard()">Next →</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="tab-quiz" style="display:none">
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="tab-checklist" style="display:none">
+    <div id="checklistArea"></div>
+  </section>
+
+</main>
+
+<script>
+const topicsData = [
+  { domain:1, title:"Cloud computing basics", desc:"The foundation of what cloud computing is and why it exists.", items:["Definition: on-demand resources over the internet","CapEx vs. OpEx cost model shift","Economies of scale — shared infrastructure","High availability, scalability, elasticity","Agility and geographic reach","Disaster recovery built-in"] },
+  { domain:1, title:"Cloud service models", desc:"IaaS, PaaS, and SaaS — the shared responsibility model.", items:["IaaS: you manage OS, middleware, apps","PaaS: you manage apps and data only","SaaS: you manage nothing (e.g. Microsoft 365)","Shared responsibility shifts by model","Azure examples for each model type","Serverless computing (FaaS) as emerging model"] },
+  { domain:1, title:"Deployment models", desc:"Public, private, hybrid, and multi-cloud strategies.", items:["Public cloud: Azure-owned infrastructure","Private cloud: org-owned, org-hosted","Hybrid: mix of public + private","Multi-cloud: multiple cloud providers","Azure Arc for hybrid/multi-cloud management","Azure Stack for on-prem Azure experience"] },
+  { domain:2, title:"Azure core architecture", desc:"How Azure's global infrastructure is structured.", items:["Datacenters → Availability Zones → Regions","Region pairs for disaster recovery","Sovereign regions (US Gov, China)","Resource Groups as logical containers","Subscriptions and management groups hierarchy","Azure Active Directory (Entra ID) tenants"] },
+  { domain:2, title:"Compute services", desc:"Services for running workloads and applications.", items:["Azure Virtual Machines — full IaaS control","Azure App Service — managed web apps/APIs","Azure Container Instances (ACI)","Azure Kubernetes Service (AKS)","Azure Functions — serverless event-driven code","Azure Virtual Desktop — VDI in the cloud"] },
+  { domain:2, title:"Storage services", desc:"How Azure stores data — blobs, files, tables, and more.", items:["Blob Storage: unstructured data (Hot/Cool/Archive tiers)","Azure Files: managed file shares (SMB/NFS)","Azure Disks: VM block storage","Queue Storage: async message queues","Table Storage: NoSQL key-value data","Storage redundancy: LRS, ZRS, GRS, GZRS"] },
+  { domain:2, title:"Networking", desc:"Connecting Azure resources and to on-premises.", items:["Azure Virtual Network (VNet) — isolated network","VNet Peering: connect VNets","VPN Gateway: encrypted tunnel to on-prem","ExpressRoute: private dedicated connection","Azure DNS: domain name resolution","Azure Firewall, NSGs, and DDoS Protection"] },
+  { domain:2, title:"Database services", desc:"Managed relational and non-relational databases.", items:["Azure SQL Database — managed SQL Server PaaS","Azure SQL Managed Instance — near-full SQL compat.","Azure Database for PostgreSQL/MySQL/MariaDB","Azure Cosmos DB — globally distributed NoSQL","Azure Cache for Redis — in-memory caching","Azure Synapse Analytics — data warehousing"] },
+  { domain:3, title:"Cost management", desc:"Understanding, estimating, and optimizing Azure spend.", items:["Pricing Calculator: estimate before deploying","Total Cost of Ownership (TCO) Calculator","Azure Cost Management + Billing dashboard","Factors: resource type, region, usage, bandwidth","Azure Reservations: 1-3 yr commit for discounts","Azure Spot VMs and Hybrid Benefit savings"] },
+  { domain:3, title:"Identity & access", desc:"Securing access to Azure resources.", items:["Microsoft Entra ID (Azure AD): cloud identity","Authentication vs. Authorization distinction","Multi-Factor Authentication (MFA)","Conditional Access policies","Role-Based Access Control (RBAC)","Azure AD B2B, B2C for external identities"] },
+  { domain:3, title:"Governance tools", desc:"Enforcing policies, standards, and compliance.", items:["Azure Policy: enforce rules at scale","Azure Blueprints: repeatable environment templates","Resource locks: prevent accidental deletion","Management Groups: scope policies across subscriptions","Microsoft Purview: data governance","Regulatory compliance dashboard in Defender for Cloud"] },
+  { domain:3, title:"Security tools", desc:"Monitoring and protecting Azure environments.", items:["Microsoft Defender for Cloud: posture management","Azure Sentinel: cloud-native SIEM/SOAR","Azure Key Vault: secrets, keys, certificates","Azure DDoS Protection (Basic vs. Standard)","Zero Trust model: verify explicitly","Microsoft Security Benchmark"] },
+  { domain:3, title:"Monitoring & management", desc:"Observability, automation, and service quality.", items:["Azure Monitor: metrics and logs platform","Log Analytics Workspace: query with KQL","Azure Alerts and Action Groups","Azure Service Health vs. Azure Status","Azure Advisor: personalized recommendations","Azure Automation and ARM Templates / Bicep"] },
+  { domain:3, title:"SLAs & service lifecycle", desc:"Commitments, previews, and support options.", items:["Service Level Agreements (SLA) per service","Composite SLA = product of individual SLAs","Availability Zones increase SLA (99.9% → 99.99%)","Preview features: public vs. private preview","General Availability (GA) = full SLA coverage","Azure support plans: Basic, Dev, Standard, Pro, Premier"] }
+];
+
+const conceptsData = [
+  { term:"High availability", def:"System remains operational with minimal downtime, typically achieved through redundancy across Availability Zones." },
+  { term:"Scalability", def:"Ability to handle increased load — vertical (bigger VM) or horizontal (more instances)." },
+  { term:"Elasticity", def:"Automatically adding or removing resources based on demand. Differs from scalability in that it's dynamic." },
+  { term:"CapEx vs. OpEx", def:"CapEx = upfront capital investment (on-prem hardware). OpEx = ongoing operational expense (cloud pay-as-you-go)." },
+  { term:"Availability Zone", def:"Physically separate datacenter within a region with independent power, cooling, and networking." },
+  { term:"Region pair", def:"Two Azure regions in the same geography, at least 300 miles apart, used for geo-redundant replication and disaster recovery." },
+  { term:"Resource Group", def:"A logical container for grouping related Azure resources with a shared lifecycle, permissions, and policies." },
+  { term:"Management Group", def:"Container for multiple subscriptions — enables applying policies and RBAC across subscriptions at scale." },
+  { term:"RBAC", def:"Role-Based Access Control. Grants access by assigning roles (Owner, Contributor, Reader) to users/groups/service principals at a scope." },
+  { term:"Azure Policy", def:"Service to create, assign, and enforce rules over Azure resources to ensure compliance with corporate standards." },
+  { term:"SLA", def:"Service Level Agreement — Microsoft's commitment on uptime/connectivity for each service (e.g. 99.9%, 99.95%, 99.99%)." },
+  { term:"Composite SLA", def:"Combined SLA when multiple services are used together. Multiply individual SLAs: 99.9% × 99.9% = 99.8%." },
+  { term:"TCO Calculator", def:"Tool to estimate cost savings from migrating on-premises workloads to Azure, including hidden costs of on-prem." },
+  { term:"Azure Reservations", def:"1- or 3-year commitment to a VM family/region in exchange for up to 72% cost savings vs. pay-as-you-go." },
+  { term:"Shared responsibility", def:"Security duties split between Microsoft and customer — what you're responsible for depends on service model (IaaS/PaaS/SaaS)." },
+  { term:"Zero Trust", def:"Security model that assumes breach and verifies every request — 'never trust, always verify' with least privilege access." },
+  { term:"ExpressRoute", def:"Private, dedicated connection between on-premises network and Azure — not over the public internet." },
+  { term:"Azure Cosmos DB", def:"Globally distributed, multi-model NoSQL database with guaranteed single-digit millisecond latency at any scale." },
+  { term:"Azure Advisor", def:"Personalized cloud consultant that analyzes your usage and recommends improvements across reliability, security, cost, and performance." },
+  { term:"Microsoft Entra ID", def:"Azure's cloud-based identity and access management service (formerly Azure Active Directory). Not Windows Active Directory." }
+];
+
+const flashcardsData = [
+  { q:"What are the three cloud service models?", a:"IaaS (Infrastructure), PaaS (Platform), SaaS (Software). Each shifts more management to Microsoft and less to the customer." },
+  { q:"What is the minimum number of Availability Zones in an Azure region?", a:"Three. Each AZ is a physically separate datacenter with its own power, cooling, and networking." },
+  { q:"What does OpEx mean and why does cloud favor it?", a:"Operational Expenditure — ongoing costs instead of upfront capital. Cloud is OpEx: you pay for what you use, enabling agility and lower initial investment." },
+  { q:"What is the difference between scalability and elasticity?", a:"Scalability = ability to handle increased load (may be manual). Elasticity = automatic scaling up/down in response to demand." },
+  { q:"How is composite SLA calculated?", a:"Multiply individual service SLAs together. Example: 99.9% × 99.9% = 99.8%. Adding redundancy across AZs raises the combined SLA." },
+  { q:"What is Azure Policy used for?", a:"Enforcing organizational rules and assessing compliance across Azure resources. Example: require all VMs to be a specific size or in approved regions." },
+  { q:"What is the difference between VPN Gateway and ExpressRoute?", a:"VPN Gateway: encrypted connection over the public internet. ExpressRoute: private dedicated connection — not over the internet, offering higher reliability and bandwidth." },
+  { q:"What are Azure Reservations and when should you use them?", a:"1- or 3-year commitments for predictable workloads. Save up to 72% vs. pay-as-you-go. Best for stable, always-running workloads." },
+  { q:"What storage tiers exist for Azure Blob Storage?", a:"Hot (frequent access), Cool (infrequent, 30-day min), Cold (rare, 90-day min), Archive (rarely accessed, 180-day min, offline). Higher tier = lower storage cost, higher access cost." },
+  { q:"What is Zero Trust in Azure security?", a:"A security model that never trusts, always verifies. Every access request is authenticated, authorized, and validated — regardless of where it originates." },
+  { q:"What is the purpose of Azure Advisor?", a:"A personalized recommendation engine that analyzes your Azure resources and suggests improvements across reliability, security, performance, operational excellence, and cost." },
+  { q:"What is the difference between Azure Monitor and Azure Service Health?", a:"Azure Monitor: monitors your specific resources (metrics, logs, alerts). Service Health: monitors Azure platform health — outages, planned maintenance affecting your subscriptions." },
+  { q:"What does RBAC stand for and how does it work?", a:"Role-Based Access Control. Grants permissions by assigning roles (Owner, Contributor, Reader) to a principal (user/group/app) at a scope (management group, subscription, resource group, or resource)." },
+  { q:"What is the difference between authentication and authorization?", a:"Authentication: confirms who you are (identity). Authorization: determines what you can do (permissions). In Azure, Entra ID handles authentication; RBAC handles authorization." },
+  { q:"What is Azure Key Vault?", a:"A secure store for secrets (passwords, connection strings), encryption keys, and certificates. Applications retrieve secrets at runtime instead of hardcoding them." }
+];
+
+const quizData = [
+  { q:"Which cloud service model gives you the most control over the operating system and middleware?", opts:["SaaS","PaaS","IaaS","FaaS"], ans:2, exp:"IaaS (Infrastructure as a Service) gives you control over the OS, middleware, and runtime. You manage everything above the hypervisor. PaaS and SaaS abstract those layers away." },
+  { q:"A company wants to ensure all Azure resources are tagged with a 'CostCenter' tag. Which tool enforces this?", opts:["Azure Advisor","Azure Policy","Azure Blueprints","RBAC"], ans:1, exp:"Azure Policy can enforce tagging requirements across subscriptions. A 'deny' policy prevents creating resources without required tags. Advisor recommends; RBAC controls who can do things, not what configurations resources must have." },
+  { q:"What is the SLA of an application using two services each with a 99.9% SLA, running in sequence (both must be available)?", opts:["99.9%","99.99%","99.8%","99.0%"], ans:2, exp:"Composite SLA = 99.9% × 99.9% = 99.8001% ≈ 99.8%. When services are dependent, you multiply the SLAs. Adding redundancy (e.g. running two VMs) uses a different formula to increase availability." },
+  { q:"Which redundancy option replicates Azure Storage data across two regions at least 300 miles apart?", opts:["LRS","ZRS","GRS","RA-GZRS"], ans:2, exp:"GRS (Geo-Redundant Storage) replicates data to a paired region hundreds of miles away, protecting against regional disasters. LRS replicates within one datacenter; ZRS across availability zones in one region." },
+  { q:"A team wants to deploy a containerized app without managing any Kubernetes infrastructure. Which service is best?", opts:["Azure Virtual Machines","Azure Kubernetes Service","Azure Container Instances","Azure App Service"], ans:2, exp:"Azure Container Instances (ACI) lets you run containers without managing any infrastructure — no cluster to set up or manage. AKS gives you Kubernetes but you manage the node pools." },
+  { q:"What is the main difference between Azure AD (Entra ID) and Windows Active Directory Domain Services?", opts:["Entra ID is on-premises only","Entra ID uses LDAP for queries","Entra ID is cloud-based and uses HTTP/HTTPS protocols","Entra ID cannot support MFA"], ans:2, exp:"Microsoft Entra ID is a cloud-based identity service using modern protocols like OAuth 2.0, OIDC, and SAML over HTTPS. Windows AD DS is on-premises and uses LDAP/Kerberos. They are different products that can be synchronized." },
+  { q:"Which pricing tool helps you estimate costs before deploying Azure resources?", opts:["Azure Cost Management","TCO Calculator","Azure Pricing Calculator","Azure Advisor"], ans:2, exp:"The Azure Pricing Calculator lets you select specific services and configurations to estimate monthly costs before deployment. The TCO Calculator estimates savings from migrating on-premises workloads. Cost Management tracks actual spending after deployment." },
+  { q:"Which Azure service provides a private, dedicated connection from an on-premises network to Azure?", opts:["Azure VPN Gateway","Azure Firewall","ExpressRoute","Azure Bastion"], ans:2, exp:"ExpressRoute provides a private connection to Azure that does NOT traverse the public internet. VPN Gateway creates an encrypted tunnel over the public internet. ExpressRoute offers higher reliability, speed, and lower latency." },
+  { q:"Which feature of Azure Cosmos DB makes it unique among database services?", opts:["It only supports relational data models","It offers global distribution with multi-region writes","It requires manual sharding for scale","It only works with SQL queries"], ans:1, exp:"Cosmos DB is designed for global distribution — you can replicate data to any Azure region worldwide and enable multi-region writes. It supports multiple APIs (SQL, MongoDB, Cassandra, Gremlin, Table) and guarantees single-digit millisecond latency." },
+  { q:"What does a resource lock in Azure do?", opts:["Encrypts the resource","Prevents accidental modification or deletion","Assigns RBAC roles to the resource","Enables diagnostic settings"], ans:1, exp:"Resource locks (CanNotDelete or ReadOnly) prevent accidental changes or deletions regardless of RBAC permissions. Even an Owner cannot delete a locked resource without first removing the lock. They apply to a resource, resource group, or subscription." }
+];
+
+const checklistData = {
+  "Study the exam domains": [
+    "Cloud concepts: IaaS, PaaS, SaaS, CapEx, OpEx, shared responsibility",
+    "Understand Azure global infrastructure (regions, AZs, region pairs)",
+    "Learn core compute services: VMs, App Service, Functions, AKS, ACI",
+    "Learn core storage services and redundancy options (LRS, ZRS, GRS)",
+    "Understand networking: VNet, VPN Gateway, ExpressRoute, NSGs",
+    "Study identity tools: Entra ID, RBAC, MFA, Conditional Access",
+    "Learn governance tools: Azure Policy, Blueprints, resource locks",
+    "Understand cost tools: Pricing Calculator, TCO, Cost Management, Reservations",
+    "Study monitoring: Azure Monitor, Advisor, Service Health, Log Analytics",
+    "Learn SLA concepts and how composite SLAs are calculated"
+  ],
+  "Hands-on practice (free tier)": [
+    "Create a free Azure account at azure.microsoft.com/free",
+    "Deploy a Windows and Linux VM in the portal",
+    "Create a Storage Account and upload blobs",
+    "Set up a VNet and configure an NSG rule",
+    "Create an Azure Function (serverless) via the portal",
+    "Explore Cost Management and set a budget alert",
+    "Assign an RBAC role to a user on a Resource Group",
+    "Create an Azure Policy and check compliance"
+  ],
+  "Exam preparation": [
+    "Complete Microsoft Learn AZ-900 learning path (free)",
+    "Review Microsoft's official exam skills outline",
+    "Take 2–3 full practice exams (Whizlabs, MeasureUp, or MS Learn)",
+    "Review all incorrect answers and understand why they're wrong",
+    "Schedule your exam at Pearson VUE or Certiport",
+    "Read through Microsoft's Azure documentation for flagged topics",
+    "Review pricing page for commonly tested services"
+  ]
+};
+
+// ── State ──
+let activeDomain = 0;
+let cardIndex = 0;
+let cardRevealed = false;
+let quizIndex = 0;
+let quizAnswered = false;
+let quizScore = 0;
+let selectedOpt = -1;
+let checkState = {};
+
+// ── Tab switching ──
+function showTab(name, btn) {
+  ['topics','concepts','flashcards','quiz','checklist'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('mainScroll').scrollTop = 0;
+  if (name === 'flashcards') renderCard();
+  if (name === 'quiz') { quizIndex=0; quizScore=0; quizAnswered=false; selectedOpt=-1; renderQuiz(); }
+  if (name === 'checklist') renderChecklist();
+}
+
+// ── Topics ──
+function filterDomain(d, btn) {
+  activeDomain = d;
+  document.querySelectorAll('.dpill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderTopics();
+}
+
+function renderTopics() {
+  const list = document.getElementById('topicsList');
+  const filtered = activeDomain === 0 ? topicsData : topicsData.filter(t => t.domain === activeDomain);
+  const labels = {1:'D1',2:'D2',3:'D3'};
+  const cls = {1:'d1',2:'d2',3:'d3'};
+  list.innerHTML = filtered.map((t,i) => `
+    <div class="topic-card" id="tc${i}" onclick="toggleTopic(${i})">
+      <div class="topic-header">
+        <span class="topic-title">${t.title}</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="topic-domain ${cls[t.domain]}">Domain ${t.domain}</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+      <p class="topic-desc">${t.desc}</p>
+      <ul class="topic-items">${t.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+    </div>`).join('');
+}
+
+function toggleTopic(i) {
+  document.getElementById('tc'+i).classList.toggle('open');
+}
+
+// ── Concepts ──
+function renderConcepts() {
+  document.getElementById('conceptsList').innerHTML = conceptsData.map(c => `
+    <div class="concept-item">
+      <div class="concept-term">${c.term}</div>
+      <div class="concept-def">${c.def}</div>
+    </div>`).join('');
+}
+
+// ── Flashcards ──
+function renderCard() {
+  const c = flashcardsData[cardIndex];
+  document.getElementById('fcCounter').textContent = `Card ${cardIndex+1} of ${flashcardsData.length}`;
+  document.getElementById('fcLabel').textContent = cardRevealed ? 'Answer' : 'Question';
+  document.getElementById('fcText').textContent = cardRevealed ? c.a : c.q;
+  document.getElementById('fcHint').textContent = cardRevealed ? 'Tap to flip back' : 'Tap to reveal answer';
+  document.getElementById('flashcard').classList.toggle('revealed', cardRevealed);
+}
+function revealCard() { cardRevealed = !cardRevealed; renderCard(); }
+function nextCard() { cardIndex=(cardIndex+1)%flashcardsData.length; cardRevealed=false; renderCard(); }
+function prevCard() { cardIndex=(cardIndex-1+flashcardsData.length)%flashcardsData.length; cardRevealed=false; renderCard(); }
+
+// ── Quiz ──
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  if (quizIndex >= quizData.length) {
+    const pct = Math.round((quizScore/quizData.length)*100);
+    const pass = pct >= 70;
+    area.innerHTML = `<div class="score-card">
+      <div class="score-num">${pct}%</div>
+      <div class="score-sub">${quizScore} of ${quizData.length} correct</div>
+      <div class="score-msg">${pass ? 'Great work! You\'re on track for the exam.' : 'Keep studying — aim for 70%+ before exam day.'}</div>
+      <button class="retry-btn" onclick="restartQuiz()">Try again</button>
+    </div>`;
+    return;
+  }
+  const q = quizData[quizIndex];
+  const pct = Math.round((quizIndex/quizData.length)*100);
+  const letters = ['A','B','C','D'];
+  area.innerHTML = `
+    <div class="quiz-progress">
+      <div class="quiz-progress-row">
+        <div class="pbar"><div class="pbar-fill" style="width:${pct}%"></div></div>
+        <div class="quiz-pct">${quizIndex+1}/${quizData.length}</div>
+      </div>
+    </div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="options">${q.opts.map((o,i)=>`
+      <div class="opt" id="opt${i}" onclick="selectOpt(${i})">
+        <span class="opt-letter">${letters[i]}</span><span>${o}</span>
+      </div>`).join('')}
+    </div>
+    <div id="explanation" style="display:none" class="explanation">${q.exp}</div>
+    <button class="quiz-btn check" id="checkBtn" onclick="checkAnswer()" disabled>Check answer</button>
+    <button class="quiz-btn next" id="nextBtn" onclick="nextQuestion()" style="display:none;margin-top:8px">${quizIndex+1 < quizData.length ? 'Next question →' : 'See results'}</button>`;
+}
+
+function selectOpt(i) {
+  if (quizAnswered) return;
+  selectedOpt = i;
+  document.querySelectorAll('.opt').forEach((o,idx) => o.classList.toggle('selected', idx===i));
+  document.getElementById('checkBtn').disabled = false;
+}
+
+function checkAnswer() {
+  if (selectedOpt === -1 || quizAnswered) return;
+  quizAnswered = true;
+  const correct = quizData[quizIndex].ans;
+  document.querySelectorAll('.opt').forEach((o,i) => {
+    o.classList.add('disabled');
+    o.classList.remove('selected');
+    if (i === correct) o.classList.add('correct');
+    else if (i === selectedOpt) o.classList.add('wrong');
+  });
+  if (selectedOpt === correct) quizScore++;
+  document.getElementById('explanation').style.display = 'block';
+  document.getElementById('checkBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function nextQuestion() { quizIndex++; quizAnswered=false; selectedOpt=-1; renderQuiz(); }
+function restartQuiz() { quizIndex=0; quizScore=0; quizAnswered=false; selectedOpt=-1; renderQuiz(); }
+
+// ── Checklist ──
+function renderChecklist() {
+  const area = document.getElementById('checklistArea');
+  let html = '';
+  for (const [section, items] of Object.entries(checklistData)) {
+    const done = items.filter((_,i) => checkState[section+i]).length;
+    html += `<div class="cl-section-label">${section}<span class="cl-count">${done}/${items.length}</span></div>`;
+    items.forEach((item,i) => {
+      const key = section+i;
+      const isDone = !!checkState[key];
+      html += `<div class="cl-item ${isDone?'done':''}" onclick="toggleCheck('${section}',${i})">
+        <div class="cl-box">
+          <svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="cl-text">${item}</div>
+      </div>`;
+    });
+  }
+  area.innerHTML = html;
+}
+
+function toggleCheck(section, i) {
+  const key = section+i;
+  checkState[key] = !checkState[key];
+  renderChecklist();
+}
+
+// ── Init ──
+renderTopics();
+renderConcepts();
+renderCard();
+</script>
+</body>
+</html>
